@@ -100,8 +100,8 @@ export default function CustomerLayout() {
         </div>
       </aside>
 
-      {/* Main column */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      {/* Main column — min-w-0 prevents flex child from exceeding viewport width on iOS */}
+      <div className="flex-1 min-w-0 lg:ml-64 flex flex-col min-h-screen">
         {/* Sticky top header */}
         <header className="bg-white border-b border-gray-200 sticky top-0 z-10 px-4 lg:px-6 py-3">
           <div className="flex items-center justify-between gap-4">

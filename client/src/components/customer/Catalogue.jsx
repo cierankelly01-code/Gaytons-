@@ -28,38 +28,35 @@ function ProductRow({ product, quantity, onIncrement, onDecrement }) {
 
       {/* Controls — flex-shrink-0 keeps buttons always on-screen */}
       <div className="flex-shrink-0 flex items-center gap-1">
-        {product.isAvailable ? (
-          hasQty ? (
-            <>
-              <button
-                className="w-9 h-9 flex items-center justify-center rounded border border-[#EAE0D5] bg-white hover:bg-[#F5EDE0] text-gray-700 transition-colors touch-manipulation"
-                onClick={() => onDecrement(product.id)}
-                aria-label="Remove one"
-              >
-                <MinusIcon className="w-3.5 h-3.5" />
-              </button>
-              <span className="w-6 text-center text-sm font-bold text-brand tabular-nums select-none">
-                {quantity}
-              </span>
-              <button
-                className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors touch-manipulation"
-                onClick={() => onIncrement(product.id)}
-                aria-label="Add one more"
-              >
-                <PlusIcon className="w-3.5 h-3.5" />
-              </button>
-            </>
-          ) : (
+        {hasQty ? (
+          <>
+            <button
+              className="w-9 h-9 flex items-center justify-center rounded border border-[#EAE0D5] bg-white hover:bg-[#F5EDE0] text-gray-700 transition-colors touch-manipulation"
+              onClick={() => onDecrement(product.id)}
+              aria-label="Remove one"
+            >
+              <MinusIcon className="w-3.5 h-3.5" />
+            </button>
+            <span className="w-6 text-center text-sm font-bold text-brand tabular-nums select-none">
+              {quantity}
+            </span>
             <button
               className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors touch-manipulation"
               onClick={() => onIncrement(product.id)}
-              aria-label={`Add ${product.productName}`}
+              aria-label="Add one more"
             >
-              <PlusIcon className="w-4 h-4" />
+              <PlusIcon className="w-3.5 h-3.5" />
             </button>
-          )
+          </>
         ) : (
-          <span className="text-gray-300 text-sm px-2">–</span>
+          <button
+            disabled={!product.isAvailable}
+            onClick={() => onIncrement(product.id)}
+            className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label={`Add ${product.productName}`}
+          >
+            <PlusIcon className="w-4 h-4" />
+          </button>
         )}
       </div>
     </div>
