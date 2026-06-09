@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useBasket } from '../../context/BasketContext';
@@ -34,6 +34,12 @@ export default function CustomerLayout() {
   };
 
   const { showWarning, remaining, extendSession } = useSessionTimeout(handleTimeout);
+
+  useEffect(() => {
+    const handler = () => setBasketOpen(true);
+    window.addEventListener('basket:open', handler);
+    return () => window.removeEventListener('basket:open', handler);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
