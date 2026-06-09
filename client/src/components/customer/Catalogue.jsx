@@ -12,7 +12,7 @@ function ProductRow({ product, quantity, onIncrement, onDecrement }) {
   return (
     <div
       className={`flex items-center gap-2 py-2.5 border-b border-[#EAE0D5] last:border-0 transition-colors ${
-        hasQty ? 'bg-accent/5 -mx-3 px-3' : ''
+        hasQty ? 'bg-accent/5 border-l-2 border-l-accent pl-2' : ''
       } ${!product.isAvailable ? 'opacity-40' : ''}`}
     >
       {/* Name */}
@@ -148,7 +148,7 @@ export default function Catalogue() {
   const isSearching = search.trim().length > 0;
 
   return (
-    <div className="relative pb-24">
+    <div className="relative pb-24 overflow-x-hidden">
       {/* Search bar */}
       <div className="mb-4">
         <div className="relative">
@@ -218,7 +218,7 @@ export default function Catalogue() {
             <p className="text-xs text-gray-400 mb-2">
               {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
             </p>
-            <div className="bg-white rounded-card border border-[#EAE0D5] px-3">
+            <div className="bg-white rounded-card border border-[#EAE0D5] px-3 overflow-hidden">
               {filteredProducts.map((product) => (
                 <ProductRow
                   key={product.id}
@@ -283,7 +283,7 @@ export default function Catalogue() {
                     {cat.label || categoryLabel(cat.value)}
                     <span className="font-normal text-gray-400">({grouped[cat.value]?.length || 0})</span>
                   </h3>
-                  <div className="bg-white rounded-card border border-[#EAE0D5] px-3">
+                  <div className="bg-white rounded-card border border-[#EAE0D5] px-3 overflow-hidden">
                     {(grouped[cat.value] || []).map((product) => (
                       <ProductRow
                         key={product.id}

@@ -54,7 +54,7 @@ export default function CustomerLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-surface flex">
+    <div className="min-h-screen bg-surface flex overflow-x-hidden">
       {showWarning && (
         <SessionTimeoutModal remaining={remaining} onExtend={extendSession} />
       )}
