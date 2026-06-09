@@ -5,58 +5,58 @@ import { formatCurrency, categoryLabel } from '../../utils/formatters';
 import { SearchIcon, PlusIcon, MinusIcon } from '../shared/Icons';
 import { PageLoader } from '../shared/LoadingSpinner';
 
-/* Compact single-line row: [Name]  [£X.XX]  [+] or [- N +] */
+/* Row layout: [Name + price stacked (flex-1)]  [+ or - N +] */
 function ProductRow({ product, quantity, onIncrement, onDecrement }) {
   const hasQty = quantity > 0;
 
   return (
     <div
-      className={`flex items-center gap-2 py-2.5 border-b border-[#EAE0D5] last:border-0 transition-colors ${
-        hasQty ? 'bg-accent/5 border-l-2 border-l-accent pl-2' : ''
+      className={`flex items-center py-2.5 border-b border-[#EAE0D5] last:border-0 gap-3 ${
+        hasQty ? 'border-l-2 border-l-accent pl-2' : 'pl-0'
       } ${!product.isAvailable ? 'opacity-40' : ''}`}
     >
-      {/* Name */}
-      <p className={`flex-1 min-w-0 text-sm leading-tight truncate ${hasQty ? 'font-semibold text-brand' : 'text-gray-800'}`}>
-        {product.productName}
-      </p>
+      {/* Name + price stacked — takes all remaining space, truncates if long */}
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm leading-snug truncate ${hasQty ? 'font-semibold text-brand' : 'text-gray-800'}`}>
+          {product.productName}
+        </p>
+        <p className="text-xs text-gray-400 mt-0.5">{formatCurrency(product.price)}</p>
+      </div>
 
-      {/* Price */}
-      <span className="text-sm font-semibold text-gray-700 flex-shrink-0 w-14 text-right">
-        {formatCurrency(product.price)}
-      </span>
-
-      {/* Controls */}
-      {product.isAvailable ? (
-        hasQty ? (
-          <div className="flex items-center gap-1 flex-shrink-0">
+      {/* Controls — fixed width, never shrinks, never clipped */}
+      <div className="flex-shrink-0">
+        {product.isAvailable ? (
+          hasQty ? (
+            <div className="flex items-center gap-1">
+              <button
+                className="w-9 h-9 flex items-center justify-center rounded border border-[#EAE0D5] bg-white hover:bg-[#F5EDE0] text-gray-700 transition-colors"
+                onClick={() => onDecrement(product.id)}
+                aria-label="Remove one"
+              >
+                <MinusIcon className="w-3.5 h-3.5" />
+              </button>
+              <span className="w-6 text-center text-sm font-bold text-brand tabular-nums">{quantity}</span>
+              <button
+                className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
+                onClick={() => onIncrement(product.id)}
+                aria-label="Add one more"
+              >
+                <PlusIcon className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
             <button
-              className="w-8 h-8 flex items-center justify-center rounded border border-[#EAE0D5] hover:bg-[#F5EDE0] text-gray-600 transition-colors"
-              onClick={() => onDecrement(product.id)}
-              aria-label="Remove one"
-            >
-              <MinusIcon className="w-3 h-3" />
-            </button>
-            <span className="w-5 text-center text-sm font-bold text-brand">{quantity}</span>
-            <button
-              className="w-8 h-8 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
               onClick={() => onIncrement(product.id)}
-              aria-label="Add one more"
+              aria-label={`Add ${product.productName}`}
             >
-              <PlusIcon className="w-3 h-3" />
+              <PlusIcon className="w-4 h-4" />
             </button>
-          </div>
+          )
         ) : (
-          <button
-            className="w-8 h-8 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors flex-shrink-0"
-            onClick={() => onIncrement(product.id)}
-            aria-label={`Add ${product.productName}`}
-          >
-            <PlusIcon className="w-3.5 h-3.5" />
-          </button>
-        )
-      ) : (
-        <span className="text-xs text-gray-400 flex-shrink-0">–</span>
-      )}
+          <span className="w-9 block text-center text-gray-300 text-sm">–</span>
+        )}
+      </div>
     </div>
   );
 }
@@ -218,7 +218,7 @@ export default function Catalogue() {
             <p className="text-xs text-gray-400 mb-2">
               {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
             </p>
-            <div className="bg-white rounded-card border border-[#EAE0D5] px-3 overflow-hidden">
+            <div className="bg-white rounded-card border border-[#EAE0D5] px-3">
               {filteredProducts.map((product) => (
                 <ProductRow
                   key={product.id}
@@ -283,7 +283,7 @@ export default function Catalogue() {
                     {cat.label || categoryLabel(cat.value)}
                     <span className="font-normal text-gray-400">({grouped[cat.value]?.length || 0})</span>
                   </h3>
-                  <div className="bg-white rounded-card border border-[#EAE0D5] px-3 overflow-hidden">
+                  <div className="bg-white rounded-card border border-[#EAE0D5] px-3">
                     {(grouped[cat.value] || []).map((product) => (
                       <ProductRow
                         key={product.id}
