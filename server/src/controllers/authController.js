@@ -32,16 +32,18 @@ function generateRefreshToken(user) {
 
 function setTokenCookies(res, accessToken, refreshToken) {
   const isProd = process.env.NODE_ENV === 'production';
+  // Cross-domain (Vercel + Railway): SameSite=None requires Secure=true
+  const sameSite = isProd ? 'None' : 'Strict';
   res.cookie('access_token', accessToken, {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'Strict',
+    sameSite,
     maxAge: 15 * 60 * 1000,
   });
   res.cookie('refresh_token', refreshToken, {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'Strict',
+    sameSite,
     maxAge: REFRESH_TOKEN_TTL_MS,
     path: '/api/auth/refresh',
   });
