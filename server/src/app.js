@@ -35,7 +35,14 @@ app.use(helmet({
   hsts: { maxAge: 31536000, includeSubDomains: true },
 }));
 
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173').split(',');
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim());
+
+// Vercel auto-sets VERCEL_URL for all serverless deployments
+if (process.env.VERCEL_URL) {
+  allowedOrigins.push(`https://${process.env.VERCEL_URL}`);
+}
 
 app.use(cors({
   origin: (origin, callback) => {

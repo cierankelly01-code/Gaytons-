@@ -1,5 +1,6 @@
 {
-  "buildCommand": "cd server && npm install && npx prisma generate && cd ../client && npm install && npm run build",
+  "version": 2,
+  "buildCommand": "npm install --prefix server && ./server/node_modules/.bin/prisma generate --schema=server/prisma/schema.prisma && npm install --prefix client && npm --prefix client run build",
   "outputDirectory": "client/dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
