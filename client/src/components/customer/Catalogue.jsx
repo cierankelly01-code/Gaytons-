@@ -5,60 +5,53 @@ import { formatCurrency, categoryLabel } from '../../utils/formatters';
 import { SearchIcon, PlusIcon, MinusIcon } from '../shared/Icons';
 import { PageLoader } from '../shared/LoadingSpinner';
 
-/*
-  CSS Grid row: left column = 1fr (name truncates), right column = auto (buttons never clipped).
-  This is the only reliable way to guarantee truncation + always-reachable button.
-*/
 function ProductRow({ product, quantity, onIncrement, onDecrement }) {
   const hasQty = quantity > 0;
 
   return (
     <div
-      style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: '12px' }}
-      className={`py-2.5 border-b border-[#EAE0D5] last:border-0 ${
+      className={`flex items-center gap-2 py-2.5 border-b border-[#EAE0D5] last:border-0 ${
         hasQty ? 'border-l-2 border-l-accent pl-2' : ''
       } ${!product.isAvailable ? 'opacity-40' : ''}`}
     >
-      {/* Left: name truncates to fit, price below */}
-      <div style={{ minWidth: 0, overflow: 'hidden' }}>
+      {/* Name + price — flex-1 min-w-0 guarantees truncation without overflowing */}
+      <div className="flex-1 min-w-0">
         <p
-          className={`text-sm leading-snug ${hasQty ? 'font-semibold text-brand' : 'text-gray-800'}`}
-          style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+          className={`text-sm leading-snug truncate ${
+            hasQty ? 'font-semibold text-brand' : 'text-gray-800'
+          }`}
         >
           {product.productName}
         </p>
         <p className="text-xs text-gray-400 mt-0.5">{formatCurrency(product.price)}</p>
       </div>
 
-      {/* Right: buttons — always fully visible, sized exactly to content */}
-      <div>
+      {/* Controls — flex-shrink-0 keeps buttons always on-screen */}
+      <div className="flex-shrink-0 flex items-center gap-1">
         {product.isAvailable ? (
           hasQty ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <>
               <button
-                style={{ width: 36, height: 36, flexShrink: 0 }}
-                className="flex items-center justify-center rounded border border-[#EAE0D5] bg-white hover:bg-[#F5EDE0] text-gray-700 transition-colors"
+                className="w-9 h-9 flex items-center justify-center rounded border border-[#EAE0D5] bg-white hover:bg-[#F5EDE0] text-gray-700 transition-colors touch-manipulation"
                 onClick={() => onDecrement(product.id)}
                 aria-label="Remove one"
               >
                 <MinusIcon className="w-3.5 h-3.5" />
               </button>
-              <span style={{ width: 22, textAlign: 'center' }} className="text-sm font-bold text-brand tabular-nums">
+              <span className="w-6 text-center text-sm font-bold text-brand tabular-nums select-none">
                 {quantity}
               </span>
               <button
-                style={{ width: 36, height: 36, flexShrink: 0 }}
-                className="flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
+                className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors touch-manipulation"
                 onClick={() => onIncrement(product.id)}
                 aria-label="Add one more"
               >
                 <PlusIcon className="w-3.5 h-3.5" />
               </button>
-            </div>
+            </>
           ) : (
             <button
-              style={{ width: 36, height: 36 }}
-              className="flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors touch-manipulation"
               onClick={() => onIncrement(product.id)}
               aria-label={`Add ${product.productName}`}
             >
@@ -66,7 +59,7 @@ function ProductRow({ product, quantity, onIncrement, onDecrement }) {
             </button>
           )
         ) : (
-          <span className="text-gray-300 text-sm">–</span>
+          <span className="text-gray-300 text-sm px-2">–</span>
         )}
       </div>
     </div>
@@ -80,23 +73,21 @@ export default function Catalogue() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { items, increment, decrement, setQuantity, itemCount, totalItems } = useBasket();
+  const { items, increment, decrement, itemCount, totalItems } = useBasket();
 
   const sectionRefs = useRef({});
   const observerRef = useRef(null);
 
   useEffect(() => {
-    Promise.all([
-      api.get('/products'),
-      api.get('/products/categories'),
-    ]).then(([productsRes, catsRes]) => {
-      setAllProducts(productsRes.data.products || []);
-      const cats = catsRes.data.categories || [];
-      setCategories(cats);
-      if (cats.length > 0) setActiveCategory(cats[0].value);
-    }).catch(() => {
-      setAllProducts([]);
-    }).finally(() => setLoading(false));
+    Promise.all([api.get('/products'), api.get('/products/categories')])
+      .then(([productsRes, catsRes]) => {
+        setAllProducts(productsRes.data.products || []);
+        const cats = catsRes.data.categories || [];
+        setCategories(cats);
+        if (cats.length > 0) setActiveCategory(cats[0].value);
+      })
+      .catch(() => setAllProducts([]))
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -161,8 +152,8 @@ export default function Catalogue() {
 
   return (
     <div className="relative pb-24">
-      {/* Search bar */}
-      <div className="mb-4">
+      {/* Search */}
+      <div className="mb-3">
         <div className="relative">
           <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           <input
@@ -184,26 +175,28 @@ export default function Catalogue() {
           )}
         </div>
 
-        {/* Mobile category pills */}
+        {/* Mobile category pills — overflow-x-auto scroll container, no negative margins */}
         {!isSearching && categories.length > 0 && (
-          <div className="md:hidden mt-2 flex gap-2 overflow-x-auto pb-1">
-            {categories.map((cat) => (
-              <button
-                key={cat.value}
-                onClick={() => scrollToCategory(cat.value)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                  activeCategory === cat.value
-                    ? 'bg-brand text-white'
-                    : 'bg-white border border-[#EAE0D5] text-gray-600'
-                }`}
-              >
-                {cat.label || categoryLabel(cat.value)}
-              </button>
-            ))}
+          <div className="md:hidden mt-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex gap-2" style={{ width: 'max-content' }}>
+              {categories.map((cat) => (
+                <button
+                  key={cat.value}
+                  onClick={() => scrollToCategory(cat.value)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap touch-manipulation ${
+                    activeCategory === cat.value
+                      ? 'bg-brand text-white'
+                      : 'bg-white border border-[#EAE0D5] text-gray-600'
+                  }`}
+                >
+                  {cat.label || categoryLabel(cat.value)}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Tablet sidebar toggle */}
+        {/* Tablet: sidebar toggle */}
         {!isSearching && (
           <div className="hidden md:flex lg:hidden mt-2">
             <button
@@ -217,6 +210,7 @@ export default function Catalogue() {
         )}
       </div>
 
+      {/* Content */}
       {isSearching ? (
         filteredProducts.length === 0 ? (
           <div className="text-center py-12">
@@ -245,7 +239,7 @@ export default function Catalogue() {
         )
       ) : (
         <div className="flex gap-5">
-          {/* Desktop / tablet category sidebar */}
+          {/* Sidebar — hidden on mobile, visible on tablet+ */}
           <aside
             className={`flex-shrink-0 w-36 ${
               sidebarCollapsed ? 'hidden lg:block' : 'hidden md:block'
@@ -279,7 +273,7 @@ export default function Catalogue() {
             </nav>
           </aside>
 
-          {/* Category sections */}
+          {/* Product sections — min-w-0 prevents flex child from overflowing */}
           <div className="flex-1 min-w-0">
             {visibleCategories.length === 0 ? (
               <p className="text-center py-12 text-gray-400">No products available.</p>
@@ -293,7 +287,9 @@ export default function Catalogue() {
                 >
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                     {cat.label || categoryLabel(cat.value)}
-                    <span className="font-normal text-gray-400">({grouped[cat.value]?.length || 0})</span>
+                    <span className="font-normal text-gray-400">
+                      ({grouped[cat.value]?.length || 0})
+                    </span>
                   </h3>
                   <div className="bg-white rounded-card border border-[#EAE0D5] px-3">
                     {(grouped[cat.value] || []).map((product) => (

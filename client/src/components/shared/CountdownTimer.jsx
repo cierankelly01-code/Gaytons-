@@ -45,21 +45,21 @@ export default function CountdownTimer() {
 
   if (isPast) {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 rounded-btn border bg-gray-50 border-gray-200">
-        <ClockIcon className="w-4 h-4 text-gray-400" />
-        <span className="text-sm font-medium text-gray-500">Orders reopen at midnight</span>
+      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-btn border bg-gray-50 border-gray-200 max-w-full">
+        <ClockIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+        <span className="text-xs font-medium text-gray-500 whitespace-nowrap">
+          <span className="hidden sm:inline">Orders reopen at </span>midnight
+        </span>
       </div>
     );
   }
 
   return (
-    <div className={`flex items-center gap-2 px-4 py-2 rounded-btn border ${colorClass}`}>
-      <ClockIcon className="w-4 h-4" />
-      <span className="text-sm font-semibold">
-        Order closes in{' '}
-        <span className="font-mono text-base">
-          {hours}h {pad(mins)}m {pad(secs)}s
-        </span>
+    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-btn border max-w-full ${colorClass}`}>
+      <ClockIcon className="w-3.5 h-3.5 flex-shrink-0" />
+      <span className="text-xs font-semibold whitespace-nowrap">
+        <span className="hidden sm:inline">Order closes in </span>
+        <span className="font-mono">{hours}h {pad(mins)}m {pad(secs)}s</span>
       </span>
     </div>
   );

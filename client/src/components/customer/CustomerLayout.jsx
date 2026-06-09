@@ -116,7 +116,7 @@ export default function CustomerLayout() {
               </svg>
             </button>
 
-            <div className="flex-1 flex justify-center lg:justify-start">
+            <div className="flex-1 min-w-0 flex justify-center lg:justify-start">
               <CountdownTimer />
             </div>
 
