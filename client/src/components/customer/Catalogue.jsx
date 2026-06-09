@@ -5,39 +5,50 @@ import { formatCurrency, categoryLabel } from '../../utils/formatters';
 import { SearchIcon, PlusIcon, MinusIcon } from '../shared/Icons';
 import { PageLoader } from '../shared/LoadingSpinner';
 
-/* Row layout: [Name + price stacked (flex-1)]  [+ or - N +] */
+/*
+  CSS Grid row: left column = 1fr (name truncates), right column = auto (buttons never clipped).
+  This is the only reliable way to guarantee truncation + always-reachable button.
+*/
 function ProductRow({ product, quantity, onIncrement, onDecrement }) {
   const hasQty = quantity > 0;
 
   return (
     <div
-      className={`flex items-center py-2.5 border-b border-[#EAE0D5] last:border-0 gap-3 ${
-        hasQty ? 'border-l-2 border-l-accent pl-2' : 'pl-0'
+      style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: '12px' }}
+      className={`py-2.5 border-b border-[#EAE0D5] last:border-0 ${
+        hasQty ? 'border-l-2 border-l-accent pl-2' : ''
       } ${!product.isAvailable ? 'opacity-40' : ''}`}
     >
-      {/* Name + price stacked — takes all remaining space, truncates if long */}
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm leading-snug truncate ${hasQty ? 'font-semibold text-brand' : 'text-gray-800'}`}>
+      {/* Left: name truncates to fit, price below */}
+      <div style={{ minWidth: 0, overflow: 'hidden' }}>
+        <p
+          className={`text-sm leading-snug ${hasQty ? 'font-semibold text-brand' : 'text-gray-800'}`}
+          style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+        >
           {product.productName}
         </p>
         <p className="text-xs text-gray-400 mt-0.5">{formatCurrency(product.price)}</p>
       </div>
 
-      {/* Controls — fixed width, never shrinks, never clipped */}
-      <div className="flex-shrink-0">
+      {/* Right: buttons — always fully visible, sized exactly to content */}
+      <div>
         {product.isAvailable ? (
           hasQty ? (
-            <div className="flex items-center gap-1">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <button
-                className="w-9 h-9 flex items-center justify-center rounded border border-[#EAE0D5] bg-white hover:bg-[#F5EDE0] text-gray-700 transition-colors"
+                style={{ width: 36, height: 36, flexShrink: 0 }}
+                className="flex items-center justify-center rounded border border-[#EAE0D5] bg-white hover:bg-[#F5EDE0] text-gray-700 transition-colors"
                 onClick={() => onDecrement(product.id)}
                 aria-label="Remove one"
               >
                 <MinusIcon className="w-3.5 h-3.5" />
               </button>
-              <span className="w-6 text-center text-sm font-bold text-brand tabular-nums">{quantity}</span>
+              <span style={{ width: 22, textAlign: 'center' }} className="text-sm font-bold text-brand tabular-nums">
+                {quantity}
+              </span>
               <button
-                className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
+                style={{ width: 36, height: 36, flexShrink: 0 }}
+                className="flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
                 onClick={() => onIncrement(product.id)}
                 aria-label="Add one more"
               >
@@ -46,7 +57,8 @@ function ProductRow({ product, quantity, onIncrement, onDecrement }) {
             </div>
           ) : (
             <button
-              className="w-9 h-9 flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
+              style={{ width: 36, height: 36 }}
+              className="flex items-center justify-center rounded bg-brand text-white hover:bg-brand-light transition-colors"
               onClick={() => onIncrement(product.id)}
               aria-label={`Add ${product.productName}`}
             >
@@ -54,7 +66,7 @@ function ProductRow({ product, quantity, onIncrement, onDecrement }) {
             </button>
           )
         ) : (
-          <span className="w-9 block text-center text-gray-300 text-sm">–</span>
+          <span className="text-gray-300 text-sm">–</span>
         )}
       </div>
     </div>
@@ -148,7 +160,7 @@ export default function Catalogue() {
   const isSearching = search.trim().length > 0;
 
   return (
-    <div className="relative pb-24 overflow-x-hidden">
+    <div className="relative pb-24">
       {/* Search bar */}
       <div className="mb-4">
         <div className="relative">

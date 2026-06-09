@@ -3,10 +3,11 @@
 @tailwind utilities;
 
 @layer base {
-  html {
+  html, body {
     font-family: 'Inter', system-ui, sans-serif;
     background-color: #FAFAF8;
     color: #1A1A1A;
+    overflow-x: hidden;
   }
 
   h1, h2, h3 {
