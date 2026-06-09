@@ -3,7 +3,7 @@ set -e
 
 cd server
 npm install
-./node_modules/.bin/prisma generate
+npm run generate
 cd ../client
 npm install
 npm run build
