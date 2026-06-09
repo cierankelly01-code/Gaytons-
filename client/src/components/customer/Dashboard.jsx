@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useBasket } from '../../context/BasketContext';
 import api from '../../api/client';
 import { formatCurrency, formatDate, formatDeliveryDate, statusLabel } from '../../utils/formatters';
-import { CheckCircleIcon, RefreshIcon, StarIcon, ShoppingCartIcon } from '../shared/Icons';
+import { CheckCircleIcon, RefreshIcon, StarIcon, ShoppingCartIcon, ExclamationIcon } from '../shared/Icons';
 import { PageLoader } from '../shared/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -20,9 +20,10 @@ function StatusBadge({ status }) {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { loadItems } = useBasket();
+  const { loadItems, clearBasket } = useBasket();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [testOrderLoading, setTestOrderLoading] = useState(false);
   const [data, setData] = useState({
     lastOrder: null,
     todayOrder: null,
@@ -72,6 +73,35 @@ export default function Dashboard() {
     loadItems([{ productId: fav.id, quantity: 1 }]);
     toast.success(`${fav.productName} added to basket`);
   }
+
+  async function handleTestOrder() {
+    setTestOrderLoading(true);
+    try {
+      const { data: pd } = await api.get('/products');
+      const available = (pd.products || []).filter((p) => p.isAvailable);
+      if (available.length === 0) {
+        toast.error('No available products to test with');
+        return;
+      }
+      const shuffled = [...available].sort(() => Math.random() - 0.5);
+      const picked = shuffled.slice(0, Math.min(3, shuffled.length));
+
+      loadItems(picked.map((p) => ({ productId: p.id, quantity: 1 })));
+
+      const res = await api.post('/orders', {
+        items: picked.map((p) => ({ productId: p.id, quantity: 1 })),
+        notes: 'Test order — submitted via test button',
+      });
+      clearBasket();
+      toast.success(`Test order ${res.data.order.orderNumber} placed successfully!`);
+    } catch (err) {
+      toast.error(err.response?.data?.error || err.message || 'Failed to place test order');
+    } finally {
+      setTestOrderLoading(false);
+    }
+  }
+
+  const showTestOrder = import.meta.env.DEV || user?.role === 'ADMIN';
 
   if (loading) return <PageLoader />;
 
@@ -198,6 +228,30 @@ export default function Dashboard() {
             </div>
           </div>
         </button>
+
+        {showTestOrder && (
+          <button
+            className="card text-left hover:shadow-card-hover transition-shadow border-2 border-dashed border-orange-200 hover:border-orange-400 disabled:opacity-60"
+            onClick={handleTestOrder}
+            disabled={testOrderLoading}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-50 rounded-btn flex items-center justify-center flex-shrink-0">
+                {testOrderLoading ? (
+                  <span className="w-5 h-5 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <ExclamationIcon className="w-5 h-5 text-orange-500" />
+                )}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">
+                  {testOrderLoading ? 'Placing test order…' : 'Place Test Order'}
+                </p>
+                <p className="text-xs text-gray-500">Dev only — tests full API stack</p>
+              </div>
+            </div>
+          </button>
+        )}
       </div>
     </div>
   );
