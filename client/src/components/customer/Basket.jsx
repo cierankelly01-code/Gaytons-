@@ -117,6 +117,25 @@ export default function Basket({ open, onClose }) {
     }
   }
 
+  async function handleTestSubmit() {
+    if (basketLines.length === 0) return;
+    setSubmitting(true);
+    try {
+      const res = await api.post('/orders', {
+        items: basketLines.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+        notes: 'Test order',
+      });
+      toast.success(`Test order ${res.data.order.orderNumber} placed!`);
+      clearBasket();
+      onClose();
+      navigate('/orders');
+    } catch (err) {
+      toast.error(err.response?.data?.error || err.message || 'Test order failed');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   if (!open) return null;
 
   return (
@@ -236,11 +255,18 @@ export default function Basket({ open, onClose }) {
                   <span className="text-gray-600 text-sm">Order total</span>
                   <span className="text-2xl font-bold text-brand">{formatCurrency(total)}</span>
                 </div>
-                <button className="btn-primary w-full text-base min-h-[44px] py-3" onClick={prepareConfirm}>
+                <button className="btn-primary w-full text-base min-h-[44px] py-3" onClick={prepareConfirm} disabled={submitting}>
                   Submit Order
                 </button>
                 <button
-                  className="w-full text-xs text-gray-400 hover:text-gray-600 mt-2 py-2"
+                  className="w-full mt-2 min-h-[44px] py-2.5 text-sm font-medium text-orange-700 border border-orange-200 rounded-btn hover:bg-orange-50 transition-colors disabled:opacity-50"
+                  onClick={handleTestSubmit}
+                  disabled={submitting}
+                >
+                  {submitting ? 'Submitting…' : 'Submit Test Order (skip confirm)'}
+                </button>
+                <button
+                  className="w-full text-xs text-gray-400 hover:text-gray-600 mt-1 py-2"
                   onClick={() => { clearBasket(); }}
                 >
                   Clear basket
