@@ -78,7 +78,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 min-w-0 lg:ml-64 flex flex-col min-h-screen">
         <header className="bg-white border-b border-gray-200 sticky top-0 z-10 px-4 lg:px-6 py-3">
           <div className="flex items-center justify-between">
             <button className="lg:hidden btn-ghost p-2" onClick={() => setMobileMenuOpen(true)}>

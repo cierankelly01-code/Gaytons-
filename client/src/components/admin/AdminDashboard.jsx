@@ -125,39 +125,63 @@ export default function AdminDashboard() {
         {feed.length === 0 ? (
           <p className="text-gray-400 text-sm text-center py-8">No orders today yet</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 text-gray-500 font-medium">Order</th>
-                  <th className="text-left py-2 text-gray-500 font-medium">Customer</th>
-                  <th className="text-left py-2 text-gray-500 font-medium">Time</th>
-                  <th className="text-center py-2 text-gray-500 font-medium">Items</th>
-                  <th className="text-right py-2 text-gray-500 font-medium">Value</th>
-                  <th className="text-center py-2 text-gray-500 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {feed.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="border-b border-gray-50 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => navigate(`/admin/orders?id=${order.id}`)}
-                  >
-                    <td className="py-2.5 font-mono text-xs">{order.orderNumber}</td>
-                    <td className="py-2.5">
-                      <p className="font-medium text-gray-900">{order.businessName}</p>
-                      <p className="text-xs text-gray-400">{order.contactName}</p>
-                    </td>
-                    <td className="py-2.5 text-gray-500 text-xs">{formatDateTime(order.submittedAt)}</td>
-                    <td className="py-2.5 text-center">{order.itemCount}</td>
-                    <td className="py-2.5 text-right font-semibold">{formatCurrency(order.totalValue)}</td>
-                    <td className="py-2.5 text-center"><StatusBadge status={order.status} /></td>
+          <>
+            {/* Mobile card list */}
+            <div className="sm:hidden space-y-2">
+              {feed.map((order) => (
+                <div
+                  key={order.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-btn cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => navigate('/admin/orders')}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-mono text-xs text-gray-500">{order.orderNumber}</span>
+                      <StatusBadge status={order.status} />
+                    </div>
+                    <p className="text-sm font-medium text-gray-900 truncate">{order.businessName}</p>
+                    <p className="text-xs text-gray-400">{formatDateTime(order.submittedAt)} · {order.itemCount} items</p>
+                  </div>
+                  <p className="text-sm font-bold text-brand flex-shrink-0 ml-3">{formatCurrency(order.totalValue)}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 text-gray-500 font-medium">Order</th>
+                    <th className="text-left py-2 text-gray-500 font-medium">Customer</th>
+                    <th className="text-left py-2 text-gray-500 font-medium">Time</th>
+                    <th className="text-center py-2 text-gray-500 font-medium">Items</th>
+                    <th className="text-right py-2 text-gray-500 font-medium">Value</th>
+                    <th className="text-center py-2 text-gray-500 font-medium">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {feed.map((order) => (
+                    <tr
+                      key={order.id}
+                      className="border-b border-gray-50 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => navigate(`/admin/orders?id=${order.id}`)}
+                    >
+                      <td className="py-2.5 font-mono text-xs">{order.orderNumber}</td>
+                      <td className="py-2.5">
+                        <p className="font-medium text-gray-900">{order.businessName}</p>
+                        <p className="text-xs text-gray-400">{order.contactName}</p>
+                      </td>
+                      <td className="py-2.5 text-gray-500 text-xs">{formatDateTime(order.submittedAt)}</td>
+                      <td className="py-2.5 text-center">{order.itemCount}</td>
+                      <td className="py-2.5 text-right font-semibold">{formatCurrency(order.totalValue)}</td>
+                      <td className="py-2.5 text-center"><StatusBadge status={order.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

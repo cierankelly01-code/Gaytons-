@@ -59,9 +59,9 @@ export default function AccountSettings() {
             { label: 'Contact Name', value: user?.contactName },
             { label: 'Email', value: user?.email },
           ].map(({ label, value }) => (
-            <div key={label} className="flex items-center gap-4">
-              <span className="text-sm text-gray-500 w-36">{label}</span>
-              <span className="text-sm font-medium text-gray-900">{value}</span>
+            <div key={label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+              <span className="text-xs font-medium text-gray-500 sm:w-36 sm:text-sm">{label}</span>
+              <span className="text-sm font-medium text-gray-900 break-all">{value}</span>
             </div>
           ))}
         </div>
@@ -116,7 +116,7 @@ export default function AccountSettings() {
               autoComplete="new-password"
             />
           </div>
-          <button type="submit" className="btn-primary" disabled={saving}>
+          <button type="submit" className="btn-primary w-full min-h-[44px]" disabled={saving}>
             {saving ? 'Saving...' : 'Update Password'}
           </button>
         </form>

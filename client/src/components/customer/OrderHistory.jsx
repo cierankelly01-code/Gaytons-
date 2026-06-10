@@ -29,15 +29,33 @@ function OrderDetail({ order, onClose, onReorder }) {
               <span className="text-sm text-gray-500">{formatDateTime(order.submittedAt)}</span>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+          <button onClick={onClose} className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-700 text-2xl leading-none rounded-btn hover:bg-gray-100">&times;</button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <p className="text-sm text-gray-600 mb-4">
             Delivery: <strong>{formatDeliveryDate(order.deliveryDate)}</strong>
           </p>
 
-          <table className="w-full text-sm">
+          {/* Mobile card list */}
+          <div className="sm:hidden space-y-2 mb-4">
+            {order.items.map((item) => (
+              <div key={item.id} className="flex items-center justify-between py-2 border-b border-gray-100">
+                <div className="flex-1 min-w-0 pr-3">
+                  <p className="text-sm font-medium text-gray-900 leading-snug">{item.productName}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{item.productCode} · ×{item.quantity} @ {formatCurrency(item.unitPrice)}</p>
+                </div>
+                <p className="text-sm font-semibold flex-shrink-0">{formatCurrency(item.lineTotal)}</p>
+              </div>
+            ))}
+            <div className="flex justify-between pt-3">
+              <span className="font-bold text-gray-900">Order Total</span>
+              <span className="text-xl font-bold text-brand">{formatCurrency(order.totalValue)}</span>
+            </div>
+          </div>
+
+          {/* Desktop table */}
+          <table className="hidden sm:table w-full text-sm">
             <thead>
               <tr className="border-b">
                 <th className="text-left py-2 text-gray-500 font-medium">Product</th>

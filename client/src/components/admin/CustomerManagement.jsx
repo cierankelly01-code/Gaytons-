@@ -195,9 +195,9 @@ export default function CustomerManagement() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-4">
         <h2 className="font-display text-2xl text-gray-900">Customer Accounts</h2>
-        <button className="btn-primary" onClick={() => setShowCreate(true)}>+ New Customer</button>
+        <button className="btn-primary flex-shrink-0 min-h-[44px]" onClick={() => setShowCreate(true)}>+ New Customer</button>
       </div>
 
       {showCreate && (
@@ -221,42 +221,71 @@ export default function CustomerManagement() {
         </div>
       </div>
 
-      {loading ? <PageLoader /> : (
-        <div className="card overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                {['Business', 'Contact', 'Email', 'Last Order', 'Total Spend', 'Status', ''].map((h) => (
-                  <th key={h} className="text-left py-3 px-3 text-gray-500 font-medium first:pl-0">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((c) => (
-                <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-3 px-3 first:pl-0 font-medium">{c.businessName}</td>
-                  <td className="py-3 px-3 text-gray-600">{c.contactName}</td>
-                  <td className="py-3 px-3 text-gray-500 text-xs">{c.email}</td>
-                  <td className="py-3 px-3 text-gray-500 text-xs">{formatDate(c.lastOrderDate) || '—'}</td>
-                  <td className="py-3 px-3 font-semibold">{formatCurrency(c.totalSpend)}</td>
-                  <td className="py-3 px-3">
-                    <div className="flex gap-1 flex-wrap">
+      {loading ? <PageLoader /> : customers.length === 0 ? (
+        <p className="text-center py-8 text-gray-400">No customers found</p>
+      ) : (
+        <>
+          {/* Mobile card list */}
+          <div className="sm:hidden space-y-3">
+            {customers.map((c) => (
+              <div
+                key={c.id}
+                className="card p-4 cursor-pointer hover:shadow-card-hover transition-shadow"
+                onClick={() => setSelected(c)}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 truncate">{c.businessName}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{c.contactName}</p>
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{c.email}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <div className="flex gap-1 flex-wrap justify-end">
                       {!c.isActive && <span className="badge bg-gray-100 text-gray-500">Inactive</span>}
                       {c.isLocked && <span className="flex items-center gap-0.5 badge bg-red-100 text-red-700"><LockIcon className="w-3 h-3" />Locked</span>}
                       {c.isActive && !c.isLocked && <span className="badge bg-green-100 text-green-700">Active</span>}
                     </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <button className="btn-ghost text-xs py-1" onClick={() => setSelected(c)}>Edit →</button>
-                  </td>
+                    <span className="text-sm font-semibold text-gray-900">{formatCurrency(c.totalSpend)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden sm:block card overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  {['Business', 'Contact', 'Email', 'Last Order', 'Total Spend', 'Status', ''].map((h) => (
+                    <th key={h} className="text-left py-3 px-3 text-gray-500 font-medium first:pl-0">{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {customers.length === 0 && (
-            <p className="text-center py-8 text-gray-400">No customers found</p>
-          )}
-        </div>
+              </thead>
+              <tbody>
+                {customers.map((c) => (
+                  <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50">
+                    <td className="py-3 px-3 first:pl-0 font-medium">{c.businessName}</td>
+                    <td className="py-3 px-3 text-gray-600">{c.contactName}</td>
+                    <td className="py-3 px-3 text-gray-500 text-xs">{c.email}</td>
+                    <td className="py-3 px-3 text-gray-500 text-xs">{formatDate(c.lastOrderDate) || '—'}</td>
+                    <td className="py-3 px-3 font-semibold">{formatCurrency(c.totalSpend)}</td>
+                    <td className="py-3 px-3">
+                      <div className="flex gap-1 flex-wrap">
+                        {!c.isActive && <span className="badge bg-gray-100 text-gray-500">Inactive</span>}
+                        {c.isLocked && <span className="flex items-center gap-0.5 badge bg-red-100 text-red-700"><LockIcon className="w-3 h-3" />Locked</span>}
+                        {c.isActive && !c.isLocked && <span className="badge bg-green-100 text-green-700">Active</span>}
+                      </div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <button className="btn-ghost text-xs py-1" onClick={() => setSelected(c)}>Edit →</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

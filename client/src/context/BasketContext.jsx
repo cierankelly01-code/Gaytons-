@@ -1,10 +1,26 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 const BasketContext = createContext(null);
+const STORAGE_KEY = 'gaytons_basket';
 
 export function BasketProvider({ children }) {
-  const [items, setItems] = useState({});
-  const [notes, setNotes] = useState('');
+  const [items, setItems] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? (JSON.parse(raw).items ?? {}) : {};
+    } catch { return {}; }
+  });
+  const [notes, setNotes] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? (JSON.parse(raw).notes ?? '') : '';
+    } catch { return ''; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, notes })); }
+    catch {}
+  }, [items, notes]);
 
   const setQuantity = useCallback((productId, quantity) => {
     setItems((prev) => {

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { ClockIcon } from './Icons';
 
-function getUKCutoff() {
+function getSecondsUntilUKCutoff() {
   const now = new Date();
-  const cutoff = new Date(now);
-  cutoff.setHours(15, 0, 0, 0);
-  if (now >= cutoff) cutoff.setDate(cutoff.getDate() + 1);
-  return cutoff;
+  // Parse current time in Europe/London timezone
+  const ukNow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/London' }));
+  const h = ukNow.getHours();
+  const m = ukNow.getMinutes();
+  const s = ukNow.getSeconds();
+  if (h >= 15) return -1;
+  return (15 - h) * 3600 - m * 60 - s;
 }
 
 export default function CountdownTimer() {
@@ -15,16 +18,13 @@ export default function CountdownTimer() {
 
   useEffect(() => {
     function tick() {
-      const now = new Date();
-      const today3pm = new Date(now);
-      today3pm.setHours(15, 0, 0, 0);
-
-      if (now >= today3pm) {
+      const secs = getSecondsUntilUKCutoff();
+      if (secs < 0) {
         setIsPast(true);
         setSeconds(0);
       } else {
         setIsPast(false);
-        setSeconds(Math.floor((today3pm - now) / 1000));
+        setSeconds(secs);
       }
     }
 

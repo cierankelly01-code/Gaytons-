@@ -12,6 +12,7 @@ export default function Templates() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const { loadItems } = useBasket();
   const navigate = useNavigate();
 
@@ -32,12 +33,12 @@ export default function Templates() {
     navigate('/catalogue');
   }
 
-  async function handleDelete(template) {
-    if (!confirm(`Delete template "${template.name}"?`)) return;
-    setDeleting(template.id);
+  async function handleDelete(templateId) {
+    setDeleting(templateId);
+    setConfirmDelete(null);
     try {
-      await api.delete(`/templates/${template.id}`);
-      setTemplates((prev) => prev.filter((t) => t.id !== template.id));
+      await api.delete(`/templates/${templateId}`);
+      setTemplates((prev) => prev.filter((t) => t.id !== templateId));
       toast.success('Template deleted');
     } catch {
       toast.error('Failed to delete template');
@@ -72,34 +73,49 @@ export default function Templates() {
         <div className="space-y-3">
           {templates.map((template) => (
             <div key={template.id} className="card p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 bg-accent/10 rounded-btn flex items-center justify-center flex-shrink-0">
-                    <StarIcon className="w-4 h-4 text-accent" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{template.name}</p>
-                    <p className="text-xs text-gray-400">
-                      {Array.isArray(template.items) ? template.items.length : 0} items · Saved {formatDate(template.createdAt)}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-accent/10 rounded-btn flex items-center justify-center flex-shrink-0">
+                  <StarIcon className="w-4 h-4 text-accent" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 truncate">{template.name}</p>
+                  <p className="text-xs text-gray-400">
+                    {Array.isArray(template.items) ? template.items.length : 0} items · Saved {formatDate(template.createdAt)}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
-                    className="btn-primary flex items-center gap-1.5 py-1.5 px-3 text-xs"
+                    className="btn-primary flex items-center gap-1.5 py-1.5 px-3 text-xs min-h-[36px]"
                     onClick={() => handleLoad(template)}
                   >
                     <RefreshIcon className="w-3.5 h-3.5" />
                     Load
                   </button>
-                  <button
-                    className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-btn transition-colors"
-                    onClick={() => handleDelete(template)}
-                    disabled={deleting === template.id}
-                    aria-label="Delete template"
-                  >
-                    <TrashIcon className="w-4 h-4" />
-                  </button>
+                  {confirmDelete === template.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        className="text-xs px-2 py-1.5 rounded-btn bg-red-600 text-white font-medium min-h-[36px]"
+                        onClick={() => handleDelete(template.id)}
+                        disabled={deleting === template.id}
+                      >
+                        {deleting === template.id ? '…' : 'Delete'}
+                      </button>
+                      <button
+                        className="text-xs px-2 py-1.5 rounded-btn border border-gray-200 text-gray-600 min-h-[36px]"
+                        onClick={() => setConfirmDelete(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-btn transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                      onClick={() => setConfirmDelete(template.id)}
+                      aria-label="Delete template"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
