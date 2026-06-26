@@ -1,0 +1,36 @@
+# CodeRabbit configuration — https://docs.coderabbit.ai/getting-started/configure-coderabbit
+# AI code review on every PR. Tuned for a small Next.js + TypeScript app.
+language: en-GB
+
+reviews:
+  profile: assertive
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+  # Always sanity-check the things that matter for this app.
+  path_instructions:
+    - path: "app/api/**"
+      instructions: >-
+        These are server route handlers. Flag any use of the Supabase service
+        role key or secrets that could reach the client. Confirm all user input
+        is validated with zod, totals are recomputed server-side (never trusted
+        from the request body), and the 48h collection rule is enforced here and
+        not only in the browser.
+    - path: "lib/adminAuth.ts"
+      instructions: >-
+        Authentication-sensitive. Verify constant-time comparison is used and no
+        secret is ever placed in a non-HttpOnly cookie or sent to the client.
+    - path: "**/*.tsx"
+      instructions: >-
+        Mobile-first UI. Flag tap targets smaller than ~44px, missing labels on
+        inputs, and any client component importing server-only secrets.
+
+chat:
+  auto_reply: true

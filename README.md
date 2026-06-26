@@ -1,159 +1,77 @@
-# Gaytons Bakery — Trade Ordering Portal
+# Kelly's Deli — grazing boards & platters
 
-A full-stack trade ordering web application for Gaytons Bakery (Est. 1918). Built with React + Vite + Tailwind on the frontend and Node.js + Express + PostgreSQL (Prisma) on the backend.
+Mobile-first marketing + ordering site for Kelly's Deli, a family-run deli in
+Bentley Heath, West Midlands. Customers pick a board (or build a custom one),
+place a **collection order**, and **pay when they collect** — there is no online
+payment anywhere in this app, by design.
 
-## Features
+Built with **Next.js (App Router) + TypeScript + Tailwind**, **Supabase**
+(Postgres), and **Resend** (order-notification email). Deploys to **Vercel**.
 
-- **Customer Portal** — Browse 243 products, add to basket, submit orders before 3 PM daily cutoff
-- **Admin Portal** — Manage orders, generate picking sheets, manage customers and products
-- **Security** — JWT auth in HTTP-only cookies, bcrypt, rate limiting, RBAC, audit logging, account lockout
-- **Real-time countdown** to daily 3 PM UK cutoff (BST/GMT aware)
-- **Picking sheet** — Print-optimised, consolidated by category
+## What it does
 
----
+1. **Three fixed boards** (Small / Medium / Large) — pick one, give details, place a collection order.
+2. **Custom board configurator** (`/build`) — the in-person sales tool. Large oval boards (10–15 people). Tap items, live total updates, themed starting points (Savoury, Indian, Smoked Salmon, Mixed).
+3. **Orders dashboard** (`/orders-admin`) — password-gated list of incoming orders with status management.
 
-## Prerequisites
+## Editing prices, items and copy
 
-- Node.js 18+
-- PostgreSQL 14+
-- npm
+**`lib/menu.ts` is the single source of truth.** Change every price, item, theme,
+piece of copy and contact detail there — nothing else needs touching. All `0`
+prices and `FILL:` strings are placeholders for you to replace.
 
----
+## Routes
 
-## Setup
-
-### 1. Clone and configure environment
-
-```bash
-git clone <repo>
-
-# Server environment
-cp .env.example server/.env
-# Edit server/.env with your DATABASE_URL, JWT secrets, SMTP config
-```
-
-### 2. Install dependencies
-
-```bash
-# Server
-cd server && npm install
-
-# Client
-cd ../client && npm install
-```
-
-### 3. Set up the database
-
-```bash
-cd server
-
-# Run migrations
-npx prisma migrate dev --name init
-
-# Seed the database (243 products + admin user)
-npm run db:seed
-```
-
-**Default admin credentials:**
-- Email: `admin@gaytonsbakery.co.uk`
-- Password: `Admin@Gaytons1`
-
-### 4. Run in development
-
-Open two terminals:
-
-```bash
-# Terminal 1 — Server (port 3001)
-cd server && npm run dev
-
-# Terminal 2 — Client (port 5173)
-cd client && npm run dev
-```
-
-Visit http://localhost:5173
-
----
-
-## Environment Variables
-
-Copy `.env.example` to `server/.env` and configure:
-
-| Variable | Description |
+| Route | Purpose |
 |---|---|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `JWT_ACCESS_SECRET` | Secret for access tokens (min 32 chars) |
-| `JWT_REFRESH_SECRET` | Secret for refresh tokens (min 32 chars) |
-| `SMTP_HOST` | SMTP server hostname |
-| `SMTP_PORT` | SMTP port (587 for TLS, 465 for SSL) |
-| `SMTP_USER` | SMTP username |
-| `SMTP_PASS` | SMTP password |
-| `SMTP_FROM` | From address for emails |
-| `CLIENT_URL` | Frontend URL (for CORS and email links) |
-| `PORT` | Server port (default: 3001) |
+| `/` | Home — hero, boards, custom CTA, hours, contact |
+| `/order/[boardId]` | Fixed board detail + order form |
+| `/build` | Custom large-oval configurator |
+| `/order/confirmed` | Confirmation (order ref, what's next) |
+| `/orders-admin` | Password-gated orders dashboard |
 
----
-
-## Production Build
+## Local setup
 
 ```bash
-# Build frontend
-cd client && npm run build
-
-# The built files go to client/dist — serve via nginx or a static host (Vercel/Netlify)
-
-# Server — run with:
-cd server && npm start
+npm install
+cp .env.example .env.local   # fill in your keys
+npm run dev                  # http://localhost:3000
 ```
 
----
+The app runs without keys — ordering shows a "call us" message and email is
+skipped — so you can develop the UI before wiring services up.
 
-## Project Structure
+### Environment variables
 
-```
-/
-├── client/          # React + Vite + Tailwind frontend
-│   └── src/
-│       ├── components/
-│       │   ├── auth/        # Login, ProtectedRoute
-│       │   ├── customer/    # Dashboard, Catalogue, Basket, etc.
-│       │   ├── admin/       # AdminDashboard, OrderMgmt, etc.
-│       │   └── shared/      # Common UI components
-│       ├── context/         # AuthContext, BasketContext
-│       ├── hooks/           # useDebounce, useSessionTimeout
-│       ├── api/             # Axios client with interceptors
-│       └── utils/           # Formatters
-│
-└── server/          # Node.js + Express backend
-    ├── prisma/
-    │   ├── schema.prisma    # Database schema
-    │   └── seed.js          # 243 products + admin user
-    └── src/
-        ├── controllers/     # Request handlers
-        ├── routes/          # Express routers
-        ├── middleware/       # Auth, RBAC, rate limit, validation
-        ├── services/        # Email, order number generation
-        └── utils/           # Audit logger, cutoff utils
-```
+| Var | Required | Notes |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | yes (to take orders) | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | optional | Public; RLS blocks all access anyway |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes (to take orders) | **Secret. Server-only.** Never expose |
+| `RESEND_API_KEY` | optional | Missing → order still saves, email skipped |
+| `ORDER_NOTIFY_EMAIL` | optional | Deli inbox for new-order alerts |
+| `ADMIN_PASSWORD` | yes (for `/orders-admin`) | Long random passphrase |
 
----
+### Database
 
-## Security Implementation
+Run `supabase/schema.sql` in the Supabase SQL editor. It creates the `orders`
+table with **RLS enabled and no policies** — so the browser-exposed anon key has
+zero access; only the server (service role) can read/write.
 
-- JWT tokens in HTTP-only, SameSite=Strict cookies (never localStorage)
-- Bcrypt with 12 salt rounds
-- Rate limiting: 5 login attempts per 15 minutes per IP
-- Account lockout after 5 failed attempts (15 min)
-- Full audit log for all actions
-- Helmet.js security headers
-- Strict CORS whitelist
-- express-validator on all inputs
-- Session timeout: warning at 25 min, auto-logout at 30 min
+## Deploy (Vercel)
 
----
+1. Import the repo into Vercel (framework auto-detected: Next.js).
+2. Add the environment variables above (Production + Preview).
+3. Deploy. For Resend, verify a sender domain and update the `from` address in `lib/email.ts`.
 
-## Order Cutoff Logic
+## Security
 
-- Daily cutoff: **3:00 PM UK time** (Europe/London — handles BST/GMT automatically)
-- After cutoff: order submission blocked, UI shows "Orders reopen at midnight"
-- Delivery date: next working day, skipping weekends and UK bank holidays
-- Friday before 3 PM → Monday delivery
+See [`SECURITY.md`](./SECURITY.md). Highlights: service-role key never leaves the
+server, RLS-locked table, server-side validation + total recomputation, 48h rule
+enforced server-side, honeypot + rate limiting on public endpoints, constant-time
+admin auth with an HttpOnly/Secure/SameSite-Strict session cookie.
+
+## Out of scope (v1)
+
+No online payment, no customer accounts, no delivery (collection only — a clean
+spot is left to add a delivery toggle later), Bentley Heath only.

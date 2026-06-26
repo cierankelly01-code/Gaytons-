@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Georgia", "Times New Roman", serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: theme("colors.cream");
+  color: theme("colors.charcoal");
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-semibold transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    min-height: 48px; /* thumb-friendly tap target */
+  }
+  .btn-primary {
+    @apply btn bg-terracotta text-white hover:bg-terracotta-dark focus-visible:ring-terracotta;
+  }
+  .btn-secondary {
+    @apply btn bg-olive text-white hover:bg-olive-dark focus-visible:ring-olive;
+  }
+  .btn-ghost {
+    @apply btn border-2 border-charcoal/15 bg-white/70 text-charcoal hover:border-charcoal/30;
+  }
+  .card {
+    @apply rounded-2xl bg-white shadow-sm ring-1 ring-charcoal/5;
+  }
+  .field {
+    @apply w-full rounded-xl border-2 border-charcoal/10 bg-white px-4 py-3 text-base outline-none transition focus:border-olive focus:ring-2 focus:ring-olive/20;
+    min-height: 48px;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-charcoal/80;
+  }
+}
