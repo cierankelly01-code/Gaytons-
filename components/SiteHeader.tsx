@@ -13,8 +13,8 @@ export function SiteHeader() {
             {business.name}
           </span>
         </Link>
-        <Link href="/build" className="btn-secondary !px-4 !py-2 text-sm">
-          Build a board
+        <Link href="/platters" className="btn-secondary !px-4 !py-2 text-sm">
+          Platters
         </Link>
       </div>
     </header>

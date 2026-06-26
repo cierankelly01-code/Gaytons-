@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 import type { ConfigItem } from "@/lib/menu";
 import { formatGBP } from "@/lib/format";
+import { BoardImage } from "./BoardImage";
 import { OrderForm } from "./OrderForm";
 
 type Group = { category: string; items: ConfigItem[] };
-type Theme = { id: string; name: string; blurb: string; presetItemIds: string[] };
+type Theme = { id: string; name: string; blurb: string; image: string; presetItemIds: string[] };
 type Meta = { serves: string; boardName: string; minSpend: number };
 
 export function Configurator({
@@ -36,10 +37,7 @@ export function Configurator({
     return Math.round((t + Number.EPSILON) * 100) / 100;
   }, [qty, priceOf]);
 
-  const selectedCount = useMemo(
-    () => Object.values(qty).reduce((a, b) => a + b, 0),
-    [qty]
-  );
+  const selectedCount = useMemo(() => Object.values(qty).reduce((a, b) => a + b, 0), [qty]);
 
   function applyTheme(theme: Theme) {
     const next: Record<string, number> = {};
@@ -65,47 +63,67 @@ export function Configurator({
 
   return (
     <div className="pb-28">
-      <header className="mt-4">
-        <h1 className="font-display text-3xl font-bold">{meta.boardName}</h1>
-        <p className="mt-1 font-semibold text-olive-dark">Serves {meta.serves}</p>
-        <p className="mt-2 text-sm text-charcoal/70">
-          Tap items to build the board. The total updates as you go.
-        </p>
-      </header>
+      {/* Sticky summary — serves + live total, always visible at the top */}
+      <div className="sticky top-[57px] z-20 -mx-4 border-b border-charcoal/10 bg-cream/95 px-4 py-3 backdrop-blur">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
+          <div>
+            <h1 className="font-display text-xl font-bold leading-tight">{meta.boardName}</h1>
+            <p className="text-sm font-semibold text-olive-dark">
+              Serves {meta.serves}
+              {selectedCount > 0 && (
+                <span className="text-charcoal/50"> · {selectedCount} item{selectedCount === 1 ? "" : "s"}</span>
+              )}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-charcoal/50">Total</p>
+            <p className="text-2xl font-extrabold tabular-nums text-terracotta-dark">{formatGBP(total)}</p>
+          </div>
+        </div>
+      </div>
 
-      {/* Theme presets */}
-      <section className="mt-5">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-charcoal/60">
-          Start from a theme
-        </h2>
-        <div className="mt-2 flex flex-wrap gap-2">
+      <p className="mt-3 text-sm text-charcoal/70">
+        Pick a style to start, then tap items to add or remove. The total updates as you go.
+      </p>
+
+      {/* Theme presets as tappable photo tiles */}
+      <section className="mt-4">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-charcoal/60">Start from a style</h2>
+        <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {themes.map((theme) => (
             <button
               key={theme.id}
               type="button"
               onClick={() => applyTheme(theme)}
-              className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition ${
-                activeTheme === theme.id
-                  ? "border-olive bg-olive text-white"
-                  : "border-charcoal/15 bg-white text-charcoal hover:border-olive/50"
+              className={`group overflow-hidden rounded-2xl text-left ring-2 transition ${
+                activeTheme === theme.id ? "ring-olive" : "ring-transparent hover:ring-olive/40"
               }`}
             >
-              {theme.name}
+              <BoardImage
+                src={theme.image}
+                alt={theme.name}
+                label={theme.name}
+                className="h-24 w-full"
+              />
+              <div className="bg-white p-2">
+                <p className="text-sm font-bold leading-tight">{theme.name}</p>
+                <p className="line-clamp-2 text-xs text-charcoal/60">{theme.blurb}</p>
+              </div>
             </button>
           ))}
-          {selectedCount > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                setQty({});
-                setActiveTheme(null);
-              }}
-              className="rounded-full border-2 border-transparent px-4 py-2 text-sm font-semibold text-terracotta-dark underline"
-            >
-              Clear all
-            </button>
-          )}
         </div>
+        {selectedCount > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setQty({});
+              setActiveTheme(null);
+            }}
+            className="mt-2 text-sm font-semibold text-terracotta-dark underline"
+          >
+            Clear all
+          </button>
+        )}
       </section>
 
       {/* Items grouped by category */}
@@ -120,9 +138,7 @@ export function Configurator({
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-center gap-3 px-4 py-3 ${
-                      selected ? "bg-olive/5" : ""
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 ${selected ? "bg-olive/5" : ""}`}
                   >
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold">{item.name}</p>
@@ -137,7 +153,7 @@ export function Configurator({
                           type="button"
                           aria-label={`Remove one ${item.name}`}
                           onClick={() => setItemQty(item.id, q - 1)}
-                          className="grid h-10 w-10 place-items-center rounded-full bg-charcoal/10 text-xl font-bold active:scale-95"
+                          className="grid h-11 w-11 place-items-center rounded-full bg-charcoal/10 text-xl font-bold active:scale-95"
                         >
                           −
                         </button>
@@ -146,7 +162,7 @@ export function Configurator({
                           type="button"
                           aria-label={`Add one ${item.name}`}
                           onClick={() => setItemQty(item.id, q + 1)}
-                          className="grid h-10 w-10 place-items-center rounded-full bg-olive text-xl font-bold text-white active:scale-95"
+                          className="grid h-11 w-11 place-items-center rounded-full bg-olive text-xl font-bold text-white active:scale-95"
                         >
                           +
                         </button>
@@ -155,7 +171,7 @@ export function Configurator({
                       <button
                         type="button"
                         onClick={() => setItemQty(item.id, 1)}
-                        className="rounded-full bg-terracotta px-4 py-2 text-sm font-semibold text-white active:scale-95"
+                        className="rounded-full bg-terracotta px-5 py-2.5 text-sm font-semibold text-white active:scale-95"
                       >
                         Add
                       </button>
@@ -171,10 +187,9 @@ export function Configurator({
       {/* Order form (revealed) */}
       {showForm && (
         <section className="card mt-8 p-6">
-          <h2 className="font-display text-xl font-bold">Place your collection order</h2>
+          <h2 className="font-display text-xl font-bold">Reserve this board</h2>
           <p className="mt-1 text-sm text-charcoal/65">
-            {selectedCount} item{selectedCount === 1 ? "" : "s"} · {formatGBP(total)} · pay on
-            collection
+            {selectedCount} item{selectedCount === 1 ? "" : "s"} · {formatGBP(total)} · deposit in store
           </p>
           <div className="mt-4">
             <OrderForm order={{ type: "custom", items: orderItems }} total={total} />
@@ -182,9 +197,9 @@ export function Configurator({
         </section>
       )}
 
-      {/* Sticky running total + CTA */}
+      {/* Sticky bottom CTA */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-charcoal/10 bg-cream/95 backdrop-blur">
-        <div className="mx-auto max-w-3xl px-4 py-3">
+        <div className="mx-auto max-w-4xl px-4 py-3">
           {belowMin && (
             <p className="mb-2 text-center text-xs font-medium text-terracotta-dark">
               Heads up — minimum spend is {formatGBP(meta.minSpend)}.
@@ -192,12 +207,8 @@ export function Configurator({
           )}
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-charcoal/50">
-                Running total
-              </p>
-              <p className="text-2xl font-extrabold tabular-nums text-charcoal">
-                {formatGBP(total)}
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-charcoal/50">Running total</p>
+              <p className="text-2xl font-extrabold tabular-nums text-charcoal">{formatGBP(total)}</p>
             </div>
             <button
               type="button"
@@ -213,7 +224,7 @@ export function Configurator({
               }}
               className="btn-primary disabled:opacity-50"
             >
-              {showForm ? "Edit details below" : "Place Order"}
+              {showForm ? "Details below" : "Place Order"}
             </button>
           </div>
         </div>

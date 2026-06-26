@@ -31,8 +31,8 @@ export function BoardCard({ board }: { board: FixedBoard }) {
             </li>
           ))}
         </ul>
-        <Link href={`/order/${board.id}`} className="btn-primary mt-5 w-full">
-          Order this board
+        <Link href={`/platters/order/${board.id}`} className="btn-primary mt-5 w-full">
+          Buy now
         </Link>
       </div>
     </div>

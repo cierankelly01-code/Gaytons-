@@ -10,9 +10,9 @@ export default function BuildPage() {
   const groups = configItemsByCategory();
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      <Link href="/" className="text-sm font-semibold text-olive-dark underline">
-        ← Home
+    <div className="mx-auto max-w-4xl px-4 py-6">
+      <Link href="/platters" className="text-sm font-semibold text-olive-dark underline">
+        ← Platters
       </Link>
       <Configurator groups={groups} themes={configThemes} meta={configMeta} />
     </div>

@@ -57,7 +57,7 @@ export function OrderForm({
         setSubmitting(false);
         return;
       }
-      router.push(`/order/confirmed?ref=${encodeURIComponent(json.ref)}`);
+      router.push(`/platters/confirmed?ref=${encodeURIComponent(json.ref)}`);
     } catch {
       setError("Network problem — please try again, or give us a call.");
       setSubmitting(false);
@@ -143,10 +143,10 @@ export function OrderForm({
       )}
 
       <button type="submit" disabled={disabled || submitting} className="btn-primary w-full disabled:opacity-60">
-        {submitting ? "Placing order…" : `Place order · ${formatGBP(total)}`}
+        {submitting ? "Placing order…" : `Reserve order · ${formatGBP(total)}`}
       </button>
       <p className="text-center text-xs text-charcoal/60">
-        No payment now — you pay when you collect.
+        Reserve now, pay your deposit in store — balance on collection.
       </p>
     </form>
   );

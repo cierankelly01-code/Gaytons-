@@ -20,7 +20,7 @@ export function SiteFooter() {
             </a>
           </p>
           <p className="mt-3 text-sm font-medium text-terracotta-dark">
-            {business.collectionNote} Pay when you collect.
+            {business.collectionNote} {business.depositNote}
           </p>
         </div>
         <div>

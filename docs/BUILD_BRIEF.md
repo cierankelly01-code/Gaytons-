@@ -53,9 +53,18 @@ source of truth for prices/items/copy/contact. Collection date must enforce a
 ### Open questions for the owner (see chat)
 - Confirmed business details (address, postcode, phone, email, opening hours).
 - Real prices for the three boards and every configurator item.
-- ~~Whether you want an order-confirmation email to the *customer*~~ → DECIDED:
-  yes. Customers who leave an email now get a "we've got your order" confirmation
-  (best-effort; only the deli notification is critical). SMS not added.
+- Customer confirmation email: DECIDED — not wanted. Only the deli inbox is
+  notified (and that's optional — skips cleanly without RESEND_API_KEY). Orders
+  are placed in person on the iPad, so the customer email isn't needed.
+
+### Structure (v2 — two experiences in one app)
+- **Public site** `(site)` group → `/` (family/local-produce marketing) + `/about`.
+- **In-store iPad tool** `(kiosk)` group → `/platters` (boards + buy-now with a
+  deposit-in-store model) and `/platters/build` (large-oval configurator with
+  Savoury / Salmon / Cheese / Sandwich styles, serves + live total pinned at top).
+  Pin `/platters` full-screen on the iPad — it has its own chrome, no marketing nav.
+- Each section has its own layout; the root layout is chrome-free. Easy to split
+  into separate domains/deployments later if wanted.
 - Allergen handling — currently a free-text "notes" field; do you need explicit
   allergen tagging per item later?
 - Delivery: out of scope for v1, but a clean spot is left to add a toggle.

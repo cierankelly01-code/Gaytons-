@@ -22,13 +22,21 @@ prices and `FILL:` strings are placeholders for you to replace.
 
 ## Routes
 
-| Route | Purpose |
-|---|---|
-| `/` | Home — hero, boards, custom CTA, hours, contact |
-| `/order/[boardId]` | Fixed board detail + order form |
-| `/build` | Custom large-oval configurator |
-| `/order/confirmed` | Confirmation (order ref, what's next) |
-| `/orders-admin` | Password-gated orders dashboard |
+Two experiences in one app:
+
+| Route | Section | Purpose |
+|---|---|---|
+| `/` | Public site | Family business, local produce, hours, contact |
+| `/about` | Public site | About the deli (grows over time) |
+| `/platters` | iPad tool | Buy-now boards + Build CTA (pin this full-screen on the iPad) |
+| `/platters/order/[boardId]` | iPad tool | Board detail + reserve (deposit in store) |
+| `/platters/build` | iPad tool | Large-oval configurator, live total, style presets |
+| `/platters/confirmed` | iPad tool | Confirmation (order ref, what's next) |
+| `/orders-admin` | Admin | Password-gated orders dashboard |
+
+The public site (`(site)` group) and the in-store tool (`(kiosk)` group) each
+have their own layout; the root layout is chrome-free. Easy to split into
+separate domains later.
 
 ## Local setup
 

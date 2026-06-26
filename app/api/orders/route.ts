@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { orderSchema, validateCollectionDate } from "@/lib/validation";
 import { buildOrderRow } from "@/lib/orders";
 import { getSupabaseAdmin, isSupabaseConfigured } from "@/lib/supabaseAdmin";
-import { sendOrderNotification, sendCustomerConfirmation } from "@/lib/email";
+import { sendOrderNotification } from "@/lib/email";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
@@ -94,12 +94,8 @@ export async function POST(req: NextRequest) {
 
   const ref = String(data.id).slice(0, 8).toUpperCase();
 
-  // Notify the deli and (if they gave an email) confirm to the customer. Both
-  // are best-effort — neither can fail the order, which is already saved.
-  await Promise.allSettled([
-    sendOrderNotification(row, ref),
-    sendCustomerConfirmation(row, ref),
-  ]);
+  // Best-effort notification to the deli inbox. Never fails the saved order.
+  await sendOrderNotification(row, ref);
 
   return NextResponse.json({ ok: true, ref });
 }

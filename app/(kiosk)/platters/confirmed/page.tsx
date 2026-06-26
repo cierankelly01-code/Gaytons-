@@ -31,7 +31,8 @@ export default function ConfirmedPage({
           <li>1. We prepare your board fresh on the day.</li>
           <li>2. {business.collectionNote}</li>
           <li>
-            3. Collect from {business.name}, {business.location} — and pay when you collect.
+            3. Collect from {business.name}, {business.location} — deposit paid in store, balance
+            on collection.
           </li>
         </ul>
         <p className="mt-4 text-sm">
@@ -42,8 +43,8 @@ export default function ConfirmedPage({
         </p>
       </div>
 
-      <Link href="/" className="btn-secondary mt-8">
-        Back to home
+      <Link href="/platters" className="btn-secondary mt-8">
+        Back to platters
       </Link>
     </div>
   );

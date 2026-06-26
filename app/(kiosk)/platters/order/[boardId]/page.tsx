@@ -16,7 +16,7 @@ export default function FixedOrderPage({ params }: { params: { boardId: string }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <Link href="/" className="text-sm font-semibold text-olive-dark underline">
+      <Link href="/platters" className="text-sm font-semibold text-olive-dark underline">
         ← All boards
       </Link>
 
@@ -51,15 +51,15 @@ export default function FixedOrderPage({ params }: { params: { boardId: string }
           </ul>
 
           <p className="mt-5 rounded-xl bg-crust px-4 py-3 text-sm font-medium text-charcoal/80">
-            {business.collectionNote} Pay when you collect.
+            {business.collectionNote} {business.depositNote}
           </p>
         </div>
 
         {/* Order form */}
         <div className="card h-fit p-6">
-          <h2 className="font-display text-xl font-bold">Place your collection order</h2>
+          <h2 className="font-display text-xl font-bold">Reserve this board</h2>
           <p className="mt-1 text-sm text-charcoal/65">
-            We&apos;ll call to confirm. No payment now.
+            We&apos;ll confirm the details — deposit paid in store.
           </p>
           <div className="mt-5">
             <OrderForm
