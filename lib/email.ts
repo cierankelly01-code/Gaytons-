@@ -56,6 +56,53 @@ export async function sendOrderNotification(order: OrderRow, ref: string): Promi
   }
 }
 
+// Sends the customer a friendly "we've got your order" confirmation — only when
+// they provided an email. Fails gracefully exactly like the deli notification:
+// a missing key or send error never affects the saved order.
+export async function sendCustomerConfirmation(order: OrderRow, ref: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !order.customer_email) {
+    return; // nothing to do — no key, or customer left email blank
+  }
+
+  const resend = new Resend(apiKey);
+
+  const itemsHtml =
+    order.items && order.items.length
+      ? `<ul style="padding-left:18px">${order.items
+          .map((i) => `<li>${escapeHtml(i.name)}</li>`)
+          .join("")}</ul>`
+      : "";
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:560px;color:#2B2620">
+      <h2 style="color:#5B6E3C">Thanks, ${escapeHtml(order.customer_name)} — we've got your order!</h2>
+      <p>We'll give you a call to confirm the details and your collection time.</p>
+      <p><strong>Reference:</strong> ${escapeHtml(ref)}</p>
+      <p><strong>Board:</strong> ${escapeHtml(order.board_name)}</p>
+      ${itemsHtml}
+      <p><strong>Total:</strong> ${formatGBP(order.total)} — <em>pay when you collect</em>.</p>
+      <p><strong>Collection date:</strong> ${formatDateLong(order.collection_date)}</p>
+      <hr/>
+      <p style="color:#8A7A66;font-size:14px">${escapeHtml(business.name)}, ${escapeHtml(
+        business.location
+      )} · ${escapeHtml(business.phone)}<br/>
+      All boards are made to order — we ask for 48 hours' notice.</p>
+    </div>`;
+
+  try {
+    await resend.emails.send({
+      // NOTE: replace with a verified Resend sender domain in production.
+      from: `${business.name} <onboarding@resend.dev>`,
+      to: order.customer_email,
+      subject: `Your ${business.name} order is in — ref ${ref}`,
+      html,
+    });
+  } catch (err) {
+    console.error("[email] Failed to send customer confirmation:", err);
+  }
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")

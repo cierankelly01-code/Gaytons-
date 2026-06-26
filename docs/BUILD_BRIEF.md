@@ -53,8 +53,9 @@ source of truth for prices/items/copy/contact. Collection date must enforce a
 ### Open questions for the owner (see chat)
 - Confirmed business details (address, postcode, phone, email, opening hours).
 - Real prices for the three boards and every configurator item.
-- Whether you want an order-confirmation email/SMS to the *customer* (currently
-  only the *deli* is notified — customers have no login and pay on collection).
+- ~~Whether you want an order-confirmation email to the *customer*~~ → DECIDED:
+  yes. Customers who leave an email now get a "we've got your order" confirmation
+  (best-effort; only the deli notification is critical). SMS not added.
 - Allergen handling — currently a free-text "notes" field; do you need explicit
   allergen tagging per item later?
 - Delivery: out of scope for v1, but a clean spot is left to add a toggle.
